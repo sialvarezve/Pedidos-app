@@ -252,7 +252,7 @@ class OrderViewTests(TestCase):
 		message = body["errors"]["productos"]
 		self.assertIn("Unit price for product P010 must match 11", message)
 
-	def test_orders_endpoint_rejects_fractional_catalog_price(self):
+	def test_orders_endpoint_accepts_fractional_catalog_price(self):
 		payload = {
 			"cliente": "ACME Corp",
 			"productos": [
@@ -277,10 +277,10 @@ class OrderViewTests(TestCase):
 				content_type="application/json",
 			)
 
-		self.assertEqual(response.status_code, 400)
-		body = response.json()
-		message = body["errors"]["productos"]
-		self.assertIn(
-			"Catalog price for product P011 must be an integer value.",
-			message,
-		)
+		self.assertEqual(response.status_code, 201)
+		order = Order.objects.get(client="ACME Corp")
+		product = Product.objects.get(sku="P011")
+		self.assertEqual(product.price, 10.5)
+		through_model = order.products.through
+		item = through_model.objects.get(order=order, product=product)
+		self.assertEqual(item.quantity, 1)

@@ -31,7 +31,7 @@ class Order(models.Model):
 
 class Product(models.Model):
 	sku = models.CharField(max_length=8, primary_key=True)
-	price = models.IntegerField()
+	price = models.FloatField()
 	title = models.CharField(max_length=128, default="")
 	description = models.TextField(default="", blank=True)
 	category = models.CharField(max_length=32, default="", blank=True)
@@ -117,16 +117,7 @@ class Product(models.Model):
 				}
 			)
 
-		if catalog_price != catalog_price.to_integral_value():
-			raise ValidationError(
-				{
-					"productos": (
-						f"Catalog price for product {sku} must be an integer value."
-					)
-				}
-			)
-
-		price_value = int(catalog_price)
+		price_value = float(catalog_price)
 		defaults = {"price": price_value}
 		product, _ = Product.objects.get_or_create(sku=sku, defaults=defaults)
 		updates = {
