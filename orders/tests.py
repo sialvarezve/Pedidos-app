@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.urls import reverse
 
 from .models import Order, OrderItem, Product
 
@@ -36,6 +37,19 @@ class OrderItemTests(TestCase):
 		self.assertEqual(order_item.quantity, 3)
 		self.assertIn(product, order.products.all())
 		self.assertEqual(
-            order.products.through.objects.get(order=order, product=product).quantity,
-            3
-        )
+			order.products.through.objects.get(order=order, product=product).quantity,
+			3,
+		)
+
+
+class OrderViewTests(TestCase):
+	def test_orders_endpoint_returns_orders(self):
+		Order.objects.create(client="Gamma Inc")
+
+		response = self.client.get(reverse("orders:orders"))
+
+		self.assertEqual(response.status_code, 200)
+		payload = response.json()
+		self.assertIn("orders", payload)
+		self.assertGreaterEqual(len(payload["orders"]), 1)
+		self.assertEqual(payload["orders"][0]["client"], "Gamma Inc")
