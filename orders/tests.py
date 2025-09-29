@@ -88,7 +88,12 @@ class OrderViewTests(TestCase):
 		payload = response.json()
 		self.assertIn("orders", payload)
 		self.assertGreaterEqual(len(payload["orders"]), 1)
-		self.assertEqual(payload["orders"][0]["client"], "Gamma Inc")
+		order_payload = payload["orders"][0]
+		self.assertEqual(order_payload["client"], "Gamma Inc")
+		self.assertIn("products", order_payload)
+		self.assertEqual(order_payload["products"], [])
+		self.assertIn("total_amount", order_payload)
+		self.assertEqual(order_payload["total_amount"], 0.0)
 
 	def test_orders_endpoint_creates_order(self):
 		with patch("orders.models.requests.get") as mock_get:
@@ -119,6 +124,17 @@ class OrderViewTests(TestCase):
 		self.assertEqual(body["order"]["id"], 123)
 		self.assertEqual(body["order"]["client"], "ACME Corp")
 		self.assertEqual(body["order"]["created_at"], "2025-01-01T10:30:00Z")
+		self.assertIn("products", body["order"])
+		self.assertIn("total_amount", body["order"])
+		self.assertEqual(len(body["order"]["products"]), 2)
+		products_by_sku = {
+			item["sku"]: item for item in body["order"]["products"]
+		}
+		self.assertEqual(products_by_sku["P001"]["quantity"], 3)
+		self.assertEqual(products_by_sku["P001"]["price"], 10.0)
+		self.assertEqual(products_by_sku["P002"]["quantity"], 5)
+		self.assertEqual(products_by_sku["P002"]["price"], 20.0)
+		self.assertEqual(body["order"]["total_amount"], 130.0)
 
 		order = Order.objects.get(pk=123)
 		self.assertEqual(order.client, "ACME Corp")

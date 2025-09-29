@@ -1,5 +1,6 @@
 import logging
 
+from django.db.models import Prefetch
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -16,7 +17,16 @@ class Orders(APIView):
 	
 	def get(self, request):
 		try:
-			queryset = Order.objects.all().order_by("-created_at")
+			queryset = (
+				Order.objects.all()
+				.order_by("-created_at")
+				.prefetch_related(
+					Prefetch(
+						"orderitem_set",
+						queryset=OrderItem.objects.select_related("product"),
+					)
+				)
+			)
 			serializer = OrderSerializer(queryset, many=True)
 			return Response(
 				data={"orders": serializer.data},
