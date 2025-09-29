@@ -142,14 +142,10 @@ class Product(models.Model):
 
 
 class OrderItem(models.Model):
+	pk = models.CompositePrimaryKey("order_id", "product_id")
 	order = models.ForeignKey(Order, on_delete=models.CASCADE)
 	product = models.ForeignKey(Product, on_delete=models.CASCADE)
 	quantity = models.PositiveIntegerField(default=1)
-
-	class Meta:
-		unique_together = ("order", "product")
-		verbose_name = "Order item"
-		verbose_name_plural = "Order items"
 
 	def __str__(self) -> str:
 		order_reference = getattr(self.order, "pk", None)

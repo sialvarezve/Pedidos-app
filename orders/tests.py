@@ -70,6 +70,7 @@ class OrderItemTests(TestCase):
 			quantity=3,
 		)
 
+		self.assertEqual(order_item.pk, (order.pk, product.pk))
 		self.assertEqual(order_item.quantity, 3)
 		self.assertIn(product, order.products.all())
 		through_model = order.products.through
