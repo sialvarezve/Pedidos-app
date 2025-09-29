@@ -32,9 +32,14 @@ class Orders(APIView):
 	def post(self, request, attempts=0):
 		__max_attempts = 4
 		try:
-			try:    
+			try:
+				logger.info(
+        			f"Attempt {attempts + 1} to create order with id {request.data.get('id') or '?'}"
+           		)
 				order = OrderItem.create_or_update_order_with_items(request.data)
 				serializer = OrderSerializer(order)
+				logger.info(f"Order {order.pk} created successfully.")
+				
 				return Response(
 					data={"order": serializer.data},
 					status=status.HTTP_201_CREATED,
@@ -51,13 +56,14 @@ class Orders(APIView):
 					logger.error(f"All {__max_attempts} attempts to create order failed.")
 					raise error
 		
-		except ValidationError as exc:
+		except ValidationError as error:
+			logger.warning(f"Validation error when creating order: {error}")
 			return Response(
-				{"errors": exc.detail},
+				{"errors": error.detail},
 				status=status.HTTP_400_BAD_REQUEST,
 			)
-		except Exception:
-			logger.exception("Failed to create order")
+		except Exception as error:
+			logger.exception(f"Failed to create order: {error}")
 			return Response(
 				{"error": "Error creating order."},
 				status=status.HTTP_500_INTERNAL_SERVER_ERROR,
