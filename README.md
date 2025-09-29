@@ -1,6 +1,6 @@
 # Pedidos-app
 
-A minimal Django project configured with SQLite for local development.
+A minimal Django project configured with SQLite for local development. It manage orders of products asynchronously.
 
 ## Getting started
 
