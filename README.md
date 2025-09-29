@@ -4,6 +4,8 @@ A minimal Django project configured with SQLite for local development.
 
 ## Getting started
 
+Requires **Python 3.13**.
+
 1. Create and activate a virtual environment (skip if you already have one).
 2. Install dependencies.
 3. Run migrations and start the development server.
@@ -19,3 +21,7 @@ python manage.py runserver
 ```
 
 The application uses the default SQLite database located at `db.sqlite3` in the project root.
+
+## Project structure highlights
+
+- `orders/`: Custom Django app for managing order-related logic.
