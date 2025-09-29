@@ -19,5 +19,5 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-	list_display = ("sku", "price")
-	search_fields = ("sku",)
+	list_display = ("sku", "title", "category", "price")
+	search_fields = ("sku", "title", "category")
